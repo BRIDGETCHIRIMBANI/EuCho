@@ -6,14 +6,17 @@ contract EuCho {
 
     struct SymptomEntry {
         address user;
+        string gender;
         string symptoms;
+        string location;
         uint256 timestamp;
+        uint256 age;
     }
 
     SymptomEntry[] public symptomEntries;
     mapping(address => bool) public authorizedPersonnel;
 
-    event SymptomsSubmitted(address indexed user, string symptoms, uint256 timestamp);
+    event SymptomsSubmitted(address indexed user, string symptoms, string gender, string location, uint256 age, uint256 timestamp);
     event AuthorizedPersonnelAdded(address indexed account);
     event AuthorizedPersonnelRemoved(address indexed account);
     event AlertTriggered(address indexed user, string message);
@@ -42,13 +45,21 @@ contract EuCho {
         emit AuthorizedPersonnelRemoved(account);
     }
 
-    function submitSymptoms(string memory symptoms) public {
+    function submitSymptoms(
+        string memory symptoms, 
+        string memory gender, 
+        string memory location, 
+        uint256 age
+    ) public {
         symptomEntries.push(SymptomEntry({
             user: msg.sender,
             symptoms: symptoms,
+            location: location,
+            gender: gender,
+            age: age,
             timestamp: block.timestamp
         }));
-        emit SymptomsSubmitted(msg.sender, symptoms, block.timestamp);
+        emit SymptomsSubmitted(msg.sender, symptoms, gender, location, age, block.timestamp);
 
         // Check ML model prediction off-chain and trigger alert if necessary
         bool mlPrediction = checkMLPrediction(symptoms); // Placeholder for ML prediction

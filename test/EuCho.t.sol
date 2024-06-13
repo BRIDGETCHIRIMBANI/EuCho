@@ -9,13 +9,28 @@ contract EuChoTest is Test {
 
     function setUp() public {
         euCho = new EuCho();
+
+        //Making the test account an authorised personnel to call the getSymptoms function
+        euCho.addAuthorizedPersonnel(address(this));
     }
 
     function testSubmitSymptoms() public {
-        euCho.submitSymptoms("fever, diarrhea");
-        EuCho.SymptomEntry memory entry = euCho.symptomEntries(0);
-        assertEq(entry.user, address(this));
-        assertEq(entry.symptoms, "fever, diarrhea");
+        euCho.submitSymptoms("fever, diarrhea", "Male", "Glenview", 24);
+
+        uint256 entriesCount = euCho.getSymptomsCount();
+        EuCho.SymptomEntry[] memory entries = new EuCho.SymptomEntry [] (entriesCount);
+        
+        for (uint256 i = 0; i < entriesCount; i++) {
+            entries[i] = euCho.getSymptoms(i);
+        }
+
+        assertEq(entries.length, 1); 
+        assertEq(entries[0].user, address(this));
+        assertEq(entries[0].symptoms, "fever, diarrhea");
+        assertEq(entries[0].gender, "Male");
+        assertEq(entries[0].location, "Glenview");
+        assertEq(entries[0].age, 24);
+        assertApproxEqAbs(entries[0].timestamp, block.timestamp, 2);
     }
 
     function testAddAuthorizedPersonnel() public {
@@ -25,6 +40,6 @@ contract EuChoTest is Test {
     }
 
     function testTriggerAlert() public {
-        // Add logic for testing alert triggering
+        // Placeholder test logic for triggerAlert
     }
 }
